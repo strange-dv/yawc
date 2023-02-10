@@ -1,4 +1,4 @@
-mod utils;
+mod handlers;
 
 use chrono::prelude::*;
 use clap::{Parser, Subcommand};
@@ -28,7 +28,7 @@ enum Commands {
         #[arg(required = true)]
         address: String,
         /// Specific date to get weather for
-        #[arg(value_parser = utils::date_parser)]
+        #[arg()]
         date: Option<NaiveDate>,
     },
 }
@@ -37,15 +37,7 @@ fn main() {
     let args = Cli::parse();
 
     match args.command {
-        Commands::Configure { provider } => {
-            println!("Configured {}", provider);
-        }
-        Commands::Get { address, date } => {
-            println!(
-                "Weather for {} at {}",
-                address,
-                date.unwrap()
-            );
-        }
+        Commands::Configure { provider } => handlers::configure::handle(provider),
+        Commands::Get { address, date } => handlers::get::handle(address, date),
     }
 }
