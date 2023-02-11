@@ -1,5 +1,8 @@
+mod errors;
 mod handlers;
+mod providers;
 
+use crate::errors::WeatherError;
 use chrono::prelude::*;
 use clap::{Parser, Subcommand};
 
@@ -28,16 +31,22 @@ enum Commands {
         #[arg(required = true)]
         address: String,
         /// Specific date to get weather for
-        #[arg()]
+        // we don't need to specify parser since NaiveDate implements the FromStr trait
         date: Option<NaiveDate>,
+        #[arg(long, require_equals = true)]
+        provider: Option<String>,
     },
 }
 
-fn main() {
+fn main() -> Result<(), WeatherError> {
     let args = Cli::parse();
 
     match args.command {
         Commands::Configure { provider } => handlers::configure::handle(provider),
-        Commands::Get { address, date } => handlers::get::handle(address, date),
+        Commands::Get {
+            address,
+            date,
+            provider,
+        } => handlers::get::handle(provider, address, date),
     }
 }
