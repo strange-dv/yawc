@@ -1,3 +1,4 @@
+use std::error::Error;
 use std::fmt;
 
 /// Categories of weather errors
@@ -14,7 +15,9 @@ pub struct WeatherError(pub WeatherErrorKind);
 impl fmt::Display for WeatherError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self.0 {
-            WeatherErrorKind::ProviderNotFound => write!(f, "provider not found"),
+            WeatherErrorKind::ProviderNotFound => write!(f, "Provider not found"),
         }
     }
 }
+
+impl Error for WeatherError {}

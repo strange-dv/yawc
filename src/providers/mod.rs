@@ -11,8 +11,16 @@ pub fn get_provider(provider: Option<String>) -> Result<Box<dyn provider::Provid
     let default_provider = String::from("openweather");
 
     match provider.unwrap_or(default_provider).as_str() {
-        "openweather" => Ok(Box::new(openweather::OpenWeather::new())),
-        "weatherapi" => Ok(Box::new(weatherapi::WeatherAPI::new())),
+        "openweather" => {
+            let api_key = String::from("");
+            let api_base_url = String::from("");
+            Ok(Box::new(openweather::OpenWeather::new(api_key, api_base_url)))
+        },
+        "weatherapi" => {
+            let api_key = String::from("");
+            let api_base_url = String::from("https://api.weatherapi.com/v1/history.json");
+            Ok(Box::new(weatherapi::WeatherAPI::new(api_key, api_base_url)))
+        },
         _ => Err(WeatherError(WeatherErrorKind::ProviderNotFound)),
     }
 }

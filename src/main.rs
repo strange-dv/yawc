@@ -38,15 +38,20 @@ enum Commands {
     },
 }
 
-fn main() -> Result<(), WeatherError> {
+fn main() {
     let args = Cli::parse();
 
-    match args.command {
+    let result = match args.command {
         Commands::Configure { provider } => handlers::configure::handle(provider),
         Commands::Get {
             address,
             date,
             provider,
         } => handlers::get::handle(provider, address, date),
+    };
+
+    match result {
+        Ok(_) => {}
+        Err(e) => eprintln!("{}", e),
     }
 }

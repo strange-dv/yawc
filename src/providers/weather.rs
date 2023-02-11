@@ -22,7 +22,7 @@ impl fmt::Display for Weather {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "Weather for {} at {}:\n{}",
+            "Weather for {} at {}: {}",
             self.address, self.date, self.weather_string
         )
     }
