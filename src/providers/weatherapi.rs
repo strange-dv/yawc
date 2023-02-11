@@ -4,7 +4,10 @@ use chrono::NaiveDate;
 use serde_json;
 use ureq;
 
-/// Retrieves information about weather using WeatherAPI API
+/// `WeatherAPI` key name
+pub const PROVIDER_NAME: &str = "weatherapi";
+
+/// Retrieves information about weather using <https://www.weatherapi.com> API
 pub struct WeatherAPI {
     api_key: String,
     api_base_url: String,
@@ -20,12 +23,12 @@ impl WeatherAPI {
 }
 
 impl Provider for WeatherAPI {
-    /// Returns weather using WeatherAPI.
-    /// Docs can be found at https://www.weatherapi.com/api-explorer.aspx#history
+    /// Returns weather using `WeatherAPI`.
+    /// Docs can be found at <https://www.weatherapi.com/api-explorer.aspx#history>
     fn get_response(
         &self,
         address: &str,
-        date: &NaiveDate,
+        date: NaiveDate,
     ) -> std::io::Result<serde_json::Value> {
         ureq::get(self.api_base_url.as_str())
             .query("key", self.api_key.as_str())
@@ -50,7 +53,7 @@ impl Provider for WeatherAPI {
     }
 
     fn get_weather(&self, address: String, date: NaiveDate) -> std::io::Result<Weather> {
-        let response = self.get_response(&address, &date)?;
+        let response = self.get_response(&address, date)?;
 
         let day = &response["forecast"]["forecastday"]
             .get(0)

@@ -1,6 +1,7 @@
 mod errors;
 mod handlers;
 mod providers;
+mod utils;
 
 use chrono::prelude::*;
 use clap::{Parser, Subcommand};
@@ -51,6 +52,6 @@ fn main() {
 
     match result {
         Ok(_) => {}
-        Err(e) => eprintln!("{}", e),
+        Err(e) => eprintln!("{e}"),
     }
 }
