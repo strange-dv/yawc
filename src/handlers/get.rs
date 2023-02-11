@@ -1,4 +1,3 @@
-use crate::errors::WeatherError;
 use crate::providers::get_provider;
 use chrono::{NaiveDate, Utc};
 

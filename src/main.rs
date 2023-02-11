@@ -2,7 +2,6 @@ mod errors;
 mod handlers;
 mod providers;
 
-use crate::errors::WeatherError;
 use chrono::prelude::*;
 use clap::{Parser, Subcommand};
 

@@ -17,17 +17,19 @@ impl WeatherAPI {
             api_base_url,
         }
     }
+}
 
+impl Provider for WeatherAPI {
     /// Returns weather using WeatherAPI.
     /// Docs can be found at https://www.weatherapi.com/api-explorer.aspx#history
     fn get_response(
         &self,
-        address: &String,
+        address: &str,
         date: &NaiveDate,
     ) -> std::io::Result<serde_json::Value> {
         ureq::get(self.api_base_url.as_str())
             .query("key", self.api_key.as_str())
-            .query("q", address.as_str())
+            .query("q", address)
             .query("dt", &date.to_string())
             .call()
             .map_err(|e| match e {
@@ -46,17 +48,15 @@ impl WeatherAPI {
             })?
             .into_json()
     }
-}
 
-impl Provider for WeatherAPI {
     fn get_weather(&self, address: String, date: NaiveDate) -> std::io::Result<Weather> {
         let response = self.get_response(&address, &date)?;
 
         let day = &response["forecast"]["forecastday"]
             .get(0)
-            .ok_or(std::io::Error::new(
+            .ok_or_else(|| std::io::Error::new(
                 std::io::ErrorKind::InvalidData,
-                format!("No forecast for that day available"),
+                "No forecast for that day available",
             ))?["day"];
 
         Ok(Weather::new(
@@ -64,9 +64,9 @@ impl Provider for WeatherAPI {
                 "{}, temperature was {}C°",
                 day["condition"]["text"]
                     .as_str()
-                    .ok_or(std::io::Error::new(
+                    .ok_or_else(|| std::io::Error::new(
                         std::io::ErrorKind::InvalidData,
-                        format!("No forecast for that day available"),
+                        "No forecast for that day available",
                     ))?,
                 day["avgtemp_c"]
             ),
