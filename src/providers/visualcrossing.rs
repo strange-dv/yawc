@@ -6,30 +6,16 @@ use chrono::NaiveDate;
 pub const PROVIDER_NAME: &str = "visualcrossing";
 
 /// Retrieves information about weather using <https://weather.visualcrossing.com> API
-pub struct VisualCrossing {
-    api_key: String,
-    api_base_url: String,
-}
-
-impl VisualCrossing {
-    pub fn new(api_key: String, api_base_url: String) -> VisualCrossing {
-        VisualCrossing {
-            api_key,
-            api_base_url,
-        }
-    }
-}
+pub struct VisualCrossing {}
 
 impl Provider for VisualCrossing {
     /// Returns weather using `VisualCrossing`.
     /// Docs can be found at <https://www.visualcrossing.com/resources/documentation/weather-api/timeline-weather-api/>
-    fn get_response(
-        &self,
-        address: &str,
-        date: NaiveDate,
-    ) -> std::io::Result<serde_json::Value> {
-        ureq::get(format!("{}/{address}/{date}", self.api_base_url).as_str())
-            .query("key", self.api_key.as_str())
+    fn get_response(&self, address: &str, date: NaiveDate) -> std::io::Result<serde_json::Value> {
+        let (api_key, api_base_url) = self.load_configs(String::from(PROVIDER_NAME))?;
+
+        ureq::get(format!("{api_base_url}/{address}/{date}").as_str())
+            .query("key", api_key.as_str())
             .query("unitGroup", "metric")
             .call()
             .map_err(|e| match e {
@@ -52,18 +38,22 @@ impl Provider for VisualCrossing {
     fn get_weather(&self, address: String, date: NaiveDate) -> std::io::Result<Weather> {
         let response = self.get_response(&address, date)?;
 
-        let day = &response["days"].get(0).ok_or_else(|| std::io::Error::new(
-            std::io::ErrorKind::InvalidData,
-            "No forecast for that day available",
-        ))?;
+        let day = &response["days"].get(0).ok_or_else(|| {
+            std::io::Error::new(
+                std::io::ErrorKind::InvalidData,
+                "No forecast for that day available",
+            )
+        })?;
 
         Ok(Weather::new(
             format!(
                 "{}, temperature was {}C°",
-                day["description"].as_str().ok_or_else(|| std::io::Error::new(
-                    std::io::ErrorKind::InvalidData,
-                    "No forecast for that day available",
-                ))?,
+                day["description"]
+                    .as_str()
+                    .ok_or_else(|| std::io::Error::new(
+                        std::io::ErrorKind::InvalidData,
+                        "No forecast for that day available",
+                    ))?,
                 day["temp"]
             ),
             address,

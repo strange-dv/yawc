@@ -4,7 +4,7 @@ pub fn parse_config_for(provider: &serde_json::Value) -> std::io::Result<(String
         std::io::Error::new(
             std::io::ErrorKind::InvalidData,
             format!(
-                "{} not configure. Use `configure` command to configure provider credentials",
+                "{} not configured. Use `configure` command to configure provider credentials",
                 provider
             ),
         )
@@ -13,7 +13,7 @@ pub fn parse_config_for(provider: &serde_json::Value) -> std::io::Result<(String
         std::io::Error::new(
             std::io::ErrorKind::InvalidData,
             format!(
-                "{} not configure. Use `configure` command to configure provider credentials",
+                "{} not configured. Use `configure` command to configure provider credentials",
                 provider
             ),
         )

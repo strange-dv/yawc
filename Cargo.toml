@@ -8,5 +8,8 @@ edition = "2021"
 [dependencies]
 chrono = "0.4.23"
 clap = { version = "4.1.4", features = ["derive"]}
+dialoguer = "0.10.3"
+lazy_static = "1.4.0"
 serde_json = { version = "1.0" }
 ureq = { version = "2.6.2", features = ["json"] }
+validator = "0.16.0"

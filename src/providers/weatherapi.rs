@@ -8,30 +8,15 @@ use ureq;
 pub const PROVIDER_NAME: &str = "weatherapi";
 
 /// Retrieves information about weather using <https://www.weatherapi.com> API
-pub struct WeatherAPI {
-    api_key: String,
-    api_base_url: String,
-}
-
-impl WeatherAPI {
-    pub fn new(api_key: String, api_base_url: String) -> WeatherAPI {
-        WeatherAPI {
-            api_key,
-            api_base_url,
-        }
-    }
-}
+pub struct WeatherAPI {}
 
 impl Provider for WeatherAPI {
     /// Returns weather using `WeatherAPI`.
     /// Docs can be found at <https://www.weatherapi.com/api-explorer.aspx#history>
-    fn get_response(
-        &self,
-        address: &str,
-        date: NaiveDate,
-    ) -> std::io::Result<serde_json::Value> {
-        ureq::get(self.api_base_url.as_str())
-            .query("key", self.api_key.as_str())
+    fn get_response(&self, address: &str, date: NaiveDate) -> std::io::Result<serde_json::Value> {
+        let (api_key, api_base_url) = self.load_configs(String::from(PROVIDER_NAME))?;
+        ureq::get(api_base_url.as_str())
+            .query("key", api_key.as_str())
             .query("q", address)
             .query("dt", &date.to_string())
             .call()
@@ -55,12 +40,12 @@ impl Provider for WeatherAPI {
     fn get_weather(&self, address: String, date: NaiveDate) -> std::io::Result<Weather> {
         let response = self.get_response(&address, date)?;
 
-        let day = &response["forecast"]["forecastday"]
-            .get(0)
-            .ok_or_else(|| std::io::Error::new(
+        let day = &response["forecast"]["forecastday"].get(0).ok_or_else(|| {
+            std::io::Error::new(
                 std::io::ErrorKind::InvalidData,
                 "No forecast for that day available",
-            ))?["day"];
+            )
+        })?["day"];
 
         Ok(Weather::new(
             format!(
