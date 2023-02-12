@@ -1,6 +1,7 @@
 use crate::providers::provider::Provider;
 use crate::providers::weather::Weather;
 use chrono::NaiveDate;
+use crate::utils;
 
 /// `VisualCrossing` key name
 pub const PROVIDER_NAME: &str = "visualcrossing";
@@ -12,7 +13,7 @@ impl Provider for VisualCrossing {
     /// Returns weather using `VisualCrossing`.
     /// Docs can be found at <https://www.visualcrossing.com/resources/documentation/weather-api/timeline-weather-api/>
     fn get_response(&self, address: &str, date: NaiveDate) -> std::io::Result<serde_json::Value> {
-        let (api_key, api_base_url) = self.load_configs(String::from(PROVIDER_NAME))?;
+        let (api_key, api_base_url) = utils::parse_config_for(String::from(PROVIDER_NAME))?;
 
         ureq::get(format!("{api_base_url}/{address}/{date}").as_str())
             .query("key", api_key.as_str())

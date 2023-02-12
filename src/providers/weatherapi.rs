@@ -3,6 +3,7 @@ use crate::providers::weather::Weather;
 use chrono::NaiveDate;
 use serde_json;
 use ureq;
+use crate::utils;
 
 /// `WeatherAPI` key name
 pub const PROVIDER_NAME: &str = "weatherapi";
@@ -14,7 +15,8 @@ impl Provider for WeatherAPI {
     /// Returns weather using `WeatherAPI`.
     /// Docs can be found at <https://www.weatherapi.com/api-explorer.aspx#history>
     fn get_response(&self, address: &str, date: NaiveDate) -> std::io::Result<serde_json::Value> {
-        let (api_key, api_base_url) = self.load_configs(String::from(PROVIDER_NAME))?;
+        let (api_key, api_base_url) = utils::parse_config_for(String::from(PROVIDER_NAME))?;
+
         ureq::get(api_base_url.as_str())
             .query("key", api_key.as_str())
             .query("q", address)
