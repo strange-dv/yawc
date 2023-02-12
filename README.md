@@ -17,10 +17,13 @@ Weather CLI
 Usage: yawc <COMMAND>
 
 Commands:
-  configure  Configure credentials for `provider`, where `provider` is some short name for a concrete weather API
-  get        Show weather for the provided `address` The date parameter is optional, default is now
-  help       Print this message or the help of the given subcommand(s)
-
+  # Configure credentials for `provider`, where `provider` is some short name for a concrete weather API
+  configure <provider>
+  # Show weather for the provided `address` The date parameter is optional, default is now
+  get       <address> <date:optional> <--provider=<optional>> 
+  # Print this message or the help of the given subcommand(s)
+  help
+  
 Options:
   -h, --help  Print help
 
