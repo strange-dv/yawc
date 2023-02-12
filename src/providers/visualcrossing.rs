@@ -1,7 +1,7 @@
 use crate::providers::provider::Provider;
+use crate::utils;
 use chrono::NaiveDate;
 use serde_json::Value;
-use crate::utils;
 
 /// `VisualCrossing` key name
 pub const PROVIDER_NAME: &str = "visualcrossing";
@@ -70,7 +70,7 @@ mod tests {
                 .unwrap()
                 .as_str(),
         )
-            .unwrap();
+        .unwrap();
 
         assert_eq!(
             weatherapi.form_weather_report(correct_response).unwrap(),

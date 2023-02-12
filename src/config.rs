@@ -5,7 +5,6 @@ pub fn get_config_file() -> String {
     std::env::var(CONFIG_FILE_KEY).unwrap_or_else(|_| String::from("config.json"))
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
