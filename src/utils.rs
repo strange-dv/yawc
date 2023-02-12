@@ -41,8 +41,10 @@ pub fn parse_config_for(provider: String) -> std::io::Result<(String, String)> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serial_test::serial;
 
     #[test]
+    #[serial]
     fn configs_are_being_parsed_if_ok() {
         std::env::set_var(config::CONFIG_FILE_KEY, "./test_dependencies/config.json");
         let (api_key, api_base_url) = parse_config_for(String::from("weatherapi")).unwrap();
@@ -52,19 +54,24 @@ mod tests {
             api_base_url,
             String::from("https://api.weatherapi.com/v1/history.json")
         );
+        std::env::remove_var(config::CONFIG_FILE_KEY);
     }
 
     #[test]
     #[should_panic]
+    #[serial]
     fn configs_are_not_being_parsed_if_not_supported_provider() {
         std::env::set_var(config::CONFIG_FILE_KEY, "./test_dependencies/config.json");
         let (_api_key, _api_base_url) = parse_config_for(String::from("weatherapi1")).unwrap();
+        std::env::remove_var(config::CONFIG_FILE_KEY);
     }
 
     #[test]
     #[should_panic]
+    #[serial]
     fn configs_are_not_being_parsed_if_not_existing_file() {
         std::env::set_var(config::CONFIG_FILE_KEY, "./test_dependencies/config1.json");
         let (_api_key, _api_base_url) = parse_config_for(String::from("weatherapi")).unwrap();
+        std::env::remove_var(config::CONFIG_FILE_KEY);
     }
 }
