@@ -1,0 +1,10 @@
+{
+  "visualcrossing": {
+    "api_base_url": "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline",
+    "api_key": "api_key"
+  },
+  "weatherapi": {
+    "api_base_url": "https://api.weatherapi.com/v1/history.json",
+    "api_key": "api_key"
+  }
+}
