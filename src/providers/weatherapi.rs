@@ -1,9 +1,9 @@
 use crate::providers::provider::Provider;
-use crate::providers::weather::Weather;
+use crate::utils;
 use chrono::NaiveDate;
 use serde_json;
+use serde_json::Value;
 use ureq;
-use crate::utils;
 
 /// `WeatherAPI` key name
 pub const PROVIDER_NAME: &str = "weatherapi";
@@ -39,9 +39,7 @@ impl Provider for WeatherAPI {
             .into_json()
     }
 
-    fn get_weather(&self, address: String, date: NaiveDate) -> std::io::Result<Weather> {
-        let response = self.get_response(&address, date)?;
-
+    fn form_weather_report(&self, response: Value) -> std::io::Result<String> {
         let day = &response["forecast"]["forecastday"].get(0).ok_or_else(|| {
             std::io::Error::new(
                 std::io::ErrorKind::InvalidData,
@@ -49,19 +47,15 @@ impl Provider for WeatherAPI {
             )
         })?["day"];
 
-        Ok(Weather::new(
-            format!(
-                "{}, temperature was {}C°",
-                day["condition"]["text"]
-                    .as_str()
-                    .ok_or_else(|| std::io::Error::new(
-                        std::io::ErrorKind::InvalidData,
-                        "No forecast for that day available",
-                    ))?,
-                day["avgtemp_c"]
-            ),
-            address,
-            date,
+        Ok(format!(
+            "{}, temperature was {}C°",
+            day["condition"]["text"]
+                .as_str()
+                .ok_or_else(|| std::io::Error::new(
+                    std::io::ErrorKind::InvalidData,
+                    "No forecast for that day available",
+                ))?,
+            day["avgtemp_c"]
         ))
     }
 }

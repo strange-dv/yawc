@@ -1,6 +1,6 @@
 use crate::providers::provider::Provider;
-use crate::providers::weather::Weather;
 use chrono::NaiveDate;
+use serde_json::Value;
 use crate::utils;
 
 /// `VisualCrossing` key name
@@ -36,9 +36,7 @@ impl Provider for VisualCrossing {
             .into_json()
     }
 
-    fn get_weather(&self, address: String, date: NaiveDate) -> std::io::Result<Weather> {
-        let response = self.get_response(&address, date)?;
-
+    fn form_weather_report(&self, response: Value) -> std::io::Result<String> {
         let day = &response["days"].get(0).ok_or_else(|| {
             std::io::Error::new(
                 std::io::ErrorKind::InvalidData,
@@ -46,19 +44,15 @@ impl Provider for VisualCrossing {
             )
         })?;
 
-        Ok(Weather::new(
-            format!(
-                "{}, temperature was {}C°",
-                day["description"]
-                    .as_str()
-                    .ok_or_else(|| std::io::Error::new(
-                        std::io::ErrorKind::InvalidData,
-                        "No forecast for that day available",
-                    ))?,
-                day["temp"]
-            ),
-            address,
-            date,
+        Ok(format!(
+            "{}, temperature was {}C°",
+            day["description"]
+                .as_str()
+                .ok_or_else(|| std::io::Error::new(
+                    std::io::ErrorKind::InvalidData,
+                    "No forecast for that day available",
+                ))?,
+            day["temp"]
         ))
     }
 }
