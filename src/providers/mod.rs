@@ -10,7 +10,7 @@ use std::collections::HashMap;
 use std::error::Error;
 
 lazy_static! {
-    static ref PROVIDERS: HashMap<&'static str, Box<dyn provider::Provider + Sync>> = {
+    pub static ref PROVIDERS: HashMap<&'static str, Box<dyn provider::Provider + Sync>> = {
         let mut m: HashMap<&'static str, Box<dyn provider::Provider + Sync>> = HashMap::new();
 
         // visual crossing
