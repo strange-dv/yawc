@@ -45,3 +45,19 @@ pub fn get_provider(
 
     Err(Box::new(WeatherError(WeatherErrorKind::ProviderNotFound)))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn can_get_existing_provider() {
+        let _provider = get_provider(Some(String::from(visualcrossing::PROVIDER_NAME))).unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    fn cannot_get_non_existing_provider() {
+        let _provider = get_provider(Some(String::from("provider1"))).unwrap();
+    }
+}
