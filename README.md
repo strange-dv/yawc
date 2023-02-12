@@ -6,7 +6,6 @@ yet another weather checker
 yawc is a CLI tool to check historic weather:
 <br/><br/>
 <img src="./screenshots/demo.png">
-<br/><br/>
 
 ### Usage
 <hr>
