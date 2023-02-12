@@ -12,7 +12,7 @@ pub struct VisualCrossing {}
 impl Provider for VisualCrossing {
     /// Returns weather using `VisualCrossing`.
     /// Docs can be found at <https://www.visualcrossing.com/resources/documentation/weather-api/timeline-weather-api/>
-    fn get_response(&self, address: &str, date: NaiveDate) -> std::io::Result<serde_json::Value> {
+    fn get_response(&self, address: &str, date: NaiveDate) -> std::io::Result<Value> {
         let (api_key, api_base_url) = utils::parse_config_for(String::from(PROVIDER_NAME))?;
 
         ureq::get(format!("{api_base_url}/{address}/{date}").as_str())
@@ -54,5 +54,27 @@ impl Provider for VisualCrossing {
                 ))?,
             day["temp"]
         ))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn forms_right_weather_report() {
+        let weatherapi = VisualCrossing {};
+
+        let correct_response: Value = serde_json::from_str(
+            std::fs::read_to_string("test_dependencies/visualcrossing_kyiv_2023-01-01.json")
+                .unwrap()
+                .as_str(),
+        )
+            .unwrap();
+
+        assert_eq!(
+            weatherapi.form_weather_report(correct_response).unwrap(),
+            String::from("Partly cloudy throughout the day., temperature was 10.1C°")
+        );
     }
 }

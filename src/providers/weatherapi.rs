@@ -14,7 +14,7 @@ pub struct WeatherAPI {}
 impl Provider for WeatherAPI {
     /// Returns weather using `WeatherAPI`.
     /// Docs can be found at <https://www.weatherapi.com/api-explorer.aspx#history>
-    fn get_response(&self, address: &str, date: NaiveDate) -> std::io::Result<serde_json::Value> {
+    fn get_response(&self, address: &str, date: NaiveDate) -> std::io::Result<Value> {
         let (api_key, api_base_url) = utils::parse_config_for(String::from(PROVIDER_NAME))?;
 
         ureq::get(api_base_url.as_str())
@@ -57,5 +57,27 @@ impl Provider for WeatherAPI {
                 ))?,
             day["avgtemp_c"]
         ))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn forms_right_weather_report() {
+        let weatherapi = WeatherAPI {};
+
+        let correct_response: Value = serde_json::from_str(
+            std::fs::read_to_string("test_dependencies/weatherapi_kyiv_2023-01-01.json")
+                .unwrap()
+                .as_str(),
+        )
+        .unwrap();
+
+        assert_eq!(
+            weatherapi.form_weather_report(correct_response).unwrap(),
+            String::from("Overcast, temperature was 9.3C°")
+        );
     }
 }
