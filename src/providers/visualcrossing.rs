@@ -10,30 +10,16 @@ pub const PROVIDER_NAME: &str = "visualcrossing";
 pub struct VisualCrossing {}
 
 impl Provider for VisualCrossing {
-    /// Returns weather using `VisualCrossing`.
+    /// Forms a request to `VisualCrossing`
     /// Docs can be found at <https://www.visualcrossing.com/resources/documentation/weather-api/timeline-weather-api/>
-    fn get_response(&self, address: &str, date: NaiveDate) -> std::io::Result<Value> {
+    fn form_request(&self, address: &str, date: NaiveDate) -> std::io::Result<ureq::Request> {
         let (api_key, api_base_url) = utils::parse_config_for(String::from(PROVIDER_NAME))?;
 
-        ureq::get(format!("{api_base_url}/{address}/{date}").as_str())
-            .query("key", api_key.as_str())
-            .query("unitGroup", "metric")
-            .call()
-            .map_err(|e| match e {
-                ureq::Error::Status(code, response) => std::io::Error::new(
-                    std::io::ErrorKind::InvalidData,
-                    format!(
-                        "VisualCrossing returned error:\nStatus code: {}\nError: {:?}",
-                        code,
-                        response.into_string().unwrap()
-                    ),
-                ),
-                ureq::Error::Transport(transport) => std::io::Error::new(
-                    std::io::ErrorKind::InvalidData,
-                    format!("Error calling VisualCrossing: {:?}", transport.message()),
-                ),
-            })?
-            .into_json()
+        Ok(
+            ureq::get(format!("{api_base_url}/{address}/{date}").as_str())
+                .query("key", api_key.as_str())
+                .query("unitGroup", "metric"),
+        )
     }
 
     fn form_weather_report(&self, response: Value) -> std::io::Result<String> {
@@ -60,6 +46,8 @@ impl Provider for VisualCrossing {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::config;
+    use serial_test::serial;
 
     #[test]
     fn forms_right_weather_report() {
@@ -76,5 +64,27 @@ mod tests {
             weatherapi.form_weather_report(correct_response).unwrap(),
             String::from("Partly cloudy throughout the day., temperature was 10.1C°")
         );
+    }
+
+    #[test]
+    #[serial]
+    fn forms_right_api_request() {
+        std::env::set_var(config::CONFIG_FILE_KEY, "./test_dependencies/config.json");
+
+        let visualcrossing = VisualCrossing {};
+
+        let date = NaiveDate::from_ymd_opt(2023, 2, 10).unwrap();
+        let address = String::from("address");
+
+        let correct_request = ureq::get(format!("https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/{address}/{date}").as_str())
+            .query("key", "api_key")
+            .query("unitGroup", "metric");
+
+        assert_eq!(
+            visualcrossing.form_request(&address, date).unwrap().url(),
+            correct_request.url()
+        );
+
+        std::env::remove_var(config::CONFIG_FILE_KEY);
     }
 }
